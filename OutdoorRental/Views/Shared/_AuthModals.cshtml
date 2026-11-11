@@ -1,0 +1,164 @@
+@model AuthModalsViewModel
+@using Microsoft.AspNetCore.Html
+@* login + register modals, bootstrap does the animation, zero custom js *@
+@{
+    var sep = Model.CurrentUrl.Contains('?') ? "&" : "?";
+    var loginUrl = $"{Model.CurrentUrl}{sep}auth=login";
+    var registerUrl = $"{Model.CurrentUrl}{sep}auth=register";
+}
+
+@* already-open modals need the show classes, normal ones just hide *@
+@functions {
+    IHtmlContent ModalAttributes(bool open) => open
+        ? Html.Raw("class=\"modal fade show d-block server-open\" role=\"dialog\" aria-modal=\"true\"")
+        : Html.Raw("class=\"modal fade\" aria-hidden=\"true\"");
+}
+
+@* log in *@
+<div id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" @ModalAttributes(Model.IsLoginOpen)>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form asp-controller="Account" asp-action="Login" method="post">
+                <div class="modal-header border-0 pb-0">
+                    <h2 class="modal-title h4" id="loginModalLabel">Log in</h2>
+                    @if (Model.IsLoginOpen)
+                    {
+                        <a href="@Model.CurrentUrl" class="btn-close" aria-label="Close"></a>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    }
+                </div>
+                <div class="modal-body">
+                    @if (Model.IsLoginOpen && Model.Errors.Count > 0)
+                    {
+                        <div class="alert alert-danger py-2">
+                            @foreach (var e in Model.Errors)
+                            {
+                                <div>@e</div>
+                            }
+                        </div>
+                    }
+                    <input type="hidden" asp-for="Login.ReturnUrl" />
+                    <input type="hidden" asp-for="Login.Origin" />
+                    <div class="mb-3">
+                        <label asp-for="Login.Email" class="form-label"></label>
+                        <input asp-for="Login.Email" class="form-control" autocomplete="username" />
+                        <span asp-validation-for="Login.Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Login.Password" class="form-label"></label>
+                        <input asp-for="Login.Password" class="form-control" autocomplete="current-password" />
+                        <span asp-validation-for="Login.Password" class="text-danger small"></span>
+                    </div>
+                    <div class="form-check">
+                        <input asp-for="Login.RememberMe" class="form-check-input" />
+                        <label asp-for="Login.RememberMe" class="form-check-label"></label>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
+                    <span class="small text-muted">
+                        No account?
+                        @* the span closes this modal, the link opens the other one (bootstrap 5.1 quirk) *@
+                        @if (Model.IsServerOpen)
+                        {
+                            <a href="@registerUrl">Register</a>
+                        }
+                        else
+                        {
+                            <span data-bs-dismiss="modal"><a href="@registerUrl" data-bs-target="#registerModal" data-bs-toggle="modal">Register</a></span>
+                        }
+                    </span>
+                    <button type="submit" class="btn btn-primary px-4">Log in</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* register *@
+<div id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" @ModalAttributes(Model.IsRegisterOpen)>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <form asp-controller="Account" asp-action="Register" method="post">
+                <div class="modal-header border-0 pb-0">
+                    <h2 class="modal-title h4" id="registerModalLabel">Create an account</h2>
+                    @if (Model.IsRegisterOpen)
+                    {
+                        <a href="@Model.CurrentUrl" class="btn-close" aria-label="Close"></a>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    }
+                </div>
+                <div class="modal-body">
+                    @if (Model.IsRegisterOpen && Model.Errors.Count > 0)
+                    {
+                        <div class="alert alert-danger py-2">
+                            @foreach (var e in Model.Errors)
+                            {
+                                <div>@e</div>
+                            }
+                        </div>
+                    }
+                    <input type="hidden" asp-for="Register.ReturnUrl" />
+                    <input type="hidden" asp-for="Register.Origin" />
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label asp-for="Register.FirstName" class="form-label"></label>
+                            <input asp-for="Register.FirstName" class="form-control" autocomplete="given-name" />
+                            <span asp-validation-for="Register.FirstName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="Register.LastName" class="form-label"></label>
+                            <input asp-for="Register.LastName" class="form-control" autocomplete="family-name" />
+                            <span asp-validation-for="Register.LastName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="Register.Email" class="form-label"></label>
+                            <input asp-for="Register.Email" class="form-control" autocomplete="email" />
+                            <span asp-validation-for="Register.Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="Register.PhoneNumber" class="form-label"></label>
+                            <input asp-for="Register.PhoneNumber" class="form-control" autocomplete="tel" />
+                            <span asp-validation-for="Register.PhoneNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="Register.Password" class="form-label"></label>
+                            <input asp-for="Register.Password" class="form-control" autocomplete="new-password" />
+                            <span asp-validation-for="Register.Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="Register.ConfirmPassword" class="form-label"></label>
+                            <input asp-for="Register.ConfirmPassword" class="form-control" autocomplete="new-password" />
+                            <span asp-validation-for="Register.ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <p class="form-text mb-0 mt-2">Password: at least 6 characters, including a lowercase letter and a digit.</p>
+                </div>
+                <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
+                    <span class="small text-muted">
+                        Already registered?
+                        @if (Model.IsServerOpen)
+                        {
+                            <a href="@loginUrl">Log in</a>
+                        }
+                        else
+                        {
+                            <span data-bs-dismiss="modal"><a href="@loginUrl" data-bs-target="#loginModal" data-bs-toggle="modal">Log in</a></span>
+                        }
+                    </span>
+                    <button type="submit" class="btn btn-primary px-4">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@if (Model.IsServerOpen)
+{
+    <div class="modal-backdrop fade show server-open"></div>
+}

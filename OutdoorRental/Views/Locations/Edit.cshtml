@@ -1,0 +1,13 @@
+@model RentalLocation
+@{
+    ViewData["Title"] = "Edit rental point";
+}
+
+<h1 class="h3 mb-4">Edit rental point</h1>
+
+<form asp-action="Edit" method="post" class="form-narrow">
+    <input type="hidden" asp-for="Id" />
+    <partial name="_Form" model="Model" />
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-link">Cancel</a>
+</form>

@@ -1,0 +1,42 @@
+@model EquipmentFormViewModel
+@{
+    ViewData["Title"] = "New equipment";
+}
+
+<h1 class="h3 mb-4">New equipment</h1>
+
+<form asp-action="Create" method="post" style="max-width: 760px">
+    <partial name="_Form" model="Model" />
+
+    <fieldset class="border rounded p-3 mb-3">
+        <legend class="float-none w-auto px-2 fs-6 mb-0">Purchased batch</legend>
+        <div class="row g-3">
+            <div class="col-sm-5">
+                <label asp-for="InitialUnitCount" class="form-label"></label>
+                <input asp-for="InitialUnitCount" class="form-control" min="0" max="200" />
+                <span asp-validation-for="InitialUnitCount" class="text-danger small"></span>
+            </div>
+            <div class="col-sm-7">
+                <label asp-for="InitialLocationId" class="form-label"></label>
+                <select asp-for="InitialLocationId" asp-items="Model.Locations" class="form-select">
+                    <option value="">-- choose rental point --</option>
+                </select>
+                <span asp-validation-for="InitialLocationId" class="text-danger small"></span>
+            </div>
+        </div>
+        @if (!Model.Locations.Any())
+        {
+            <p class="form-text text-warning mb-0">
+                There are no rental points yet. Set the number of units to 0 or
+                <a asp-controller="Locations" asp-action="Create">create a rental point</a> first.
+            </p>
+        }
+        else
+        {
+            <p class="form-text mb-0">Each unit gets its own serial number. More units can be added later.</p>
+        }
+    </fieldset>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="Index" class="btn btn-link">Cancel</a>
+</form>

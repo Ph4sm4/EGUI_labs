@@ -1,0 +1,36 @@
+@model RentalLocation
+@{
+    ViewData["Title"] = "Delete rental point";
+    var canDelete = (bool)(ViewBag.CanDelete ?? false);
+}
+
+<h1 class="h3 mb-4">Delete rental point</h1>
+
+<div class="card form-narrow">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Name</dt><dd class="col-sm-8">@Model.Name</dd>
+            <dt class="col-sm-4">City</dt><dd class="col-sm-8">@Model.City</dd>
+            <dt class="col-sm-4">Address</dt><dd class="col-sm-8">@Model.Address</dd>
+            <dt class="col-sm-4">Units here</dt><dd class="col-sm-8">@Model.Units.Count</dd>
+        </dl>
+    </div>
+</div>
+
+@if (canDelete)
+{
+    <p class="mt-4">Are you sure you want to delete this rental point? This cannot be undone.</p>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-link">Cancel</a>
+    </form>
+}
+else
+{
+    <div class="alert alert-warning mt-4 form-narrow">
+        This rental point cannot be deleted because it still holds equipment units or appears in rental history.
+        Move its units to another rental point first.
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">Back to list</a>
+}

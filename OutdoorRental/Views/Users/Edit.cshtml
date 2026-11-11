@@ -1,0 +1,12 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Edit user";
+}
+
+<h1 class="h3 mb-4">Edit user details</h1>
+
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="form-narrow">
+    <partial name="_ProfileFields" model="Model" />
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-link">Back to list</a>
+</form>

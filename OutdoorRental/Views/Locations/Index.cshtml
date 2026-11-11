@@ -1,0 +1,55 @@
+@model List<LocationListItemViewModel>
+@{
+    ViewData["Title"] = "Rental points";
+    var isAdmin = User.IsInRole(OutdoorRental.Data.DbSeeder.AdminRole);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Rental points</h1>
+    @if (isAdmin)
+    {
+        <a asp-action="Create" class="btn btn-primary">+ New rental point</a>
+    }
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">There are no rental points yet.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>City</th>
+                    <th>Address</th>
+                    <th>Phone</th>
+                    <th class="text-end">Units (available)</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var l = item.Location;
+                    <tr>
+                        <td><a asp-action="Details" asp-route-id="@l.Id">@l.Name</a></td>
+                        <td>@l.City</td>
+                        <td>@l.Address</td>
+                        <td>@l.Phone</td>
+                        <td class="text-end">@item.UnitCount (@item.AvailableCount)</td>
+                        <td class="text-end text-nowrap">
+                            @if (isAdmin)
+                            {
+                                <a asp-action="Edit" asp-route-id="@l.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@l.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

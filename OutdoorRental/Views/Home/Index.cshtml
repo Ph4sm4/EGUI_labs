@@ -1,0 +1,38 @@
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "Home";
+    var isAdmin = User.IsInRole(OutdoorRental.Data.DbSeeder.AdminRole);
+}
+
+<h1 class="fw-bold text-primary mt-2 mb-4">Outdoorsy</h1>
+
+<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
+    <div class="col">
+        <a asp-controller="Equipment" asp-action="Index" class="tile">
+            <span class="tile-title">Equipment</span>
+            <span class="tile-meta">@Model.EquipmentCount @(Model.EquipmentCount == 1 ? "item" : "items") &middot; @Model.AvailableUnitCount available</span>
+        </a>
+    </div>
+    <div class="col">
+        <a asp-controller="Locations" asp-action="Index" class="tile">
+            <span class="tile-title">Rental points</span>
+            <span class="tile-meta">@Model.LocationCount in @Model.CityCount @(Model.CityCount == 1 ? "city" : "cities")</span>
+        </a>
+    </div>
+
+    @if (isAdmin)
+    {
+        <div class="col">
+            <a asp-controller="Categories" asp-action="Index" class="tile">
+                <span class="tile-title">Categories</span>
+                <span class="tile-meta">@Model.CategoryCount total</span>
+            </a>
+        </div>
+        <div class="col">
+            <a asp-controller="Users" asp-action="Index" class="tile">
+                <span class="tile-title">Users</span>
+                <span class="tile-meta">@Model.UserCount registered</span>
+            </a>
+        </div>
+    }
+</div>

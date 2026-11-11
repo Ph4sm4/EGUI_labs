@@ -1,0 +1,43 @@
+@model EquipmentFormViewModel
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+<div class="row g-3 mb-3">
+    <div class="col-sm-5">
+        <label asp-for="InventoryNumber" class="form-label"></label>
+        <input asp-for="InventoryNumber" class="form-control" />
+        <span asp-validation-for="InventoryNumber" class="text-danger small"></span>
+    </div>
+    <div class="col-sm-7">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+</div>
+<div class="mb-3">
+    <label asp-for="Description" class="form-label"></label>
+    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+    <span asp-validation-for="Description" class="text-danger small"></span>
+</div>
+<div class="row g-3 mb-3">
+    <div class="col-sm-6">
+        <label asp-for="CategoryId" class="form-label"></label>
+        <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select">
+            <option value="">-- choose --</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+    </div>
+    <div class="col-sm-6">
+        <label asp-for="PurchaseYear" class="form-label"></label>
+        <input asp-for="PurchaseYear" class="form-control" />
+        <span asp-validation-for="PurchaseYear" class="text-danger small"></span>
+    </div>
+    <div class="col-sm-6">
+        <label asp-for="PurchasePrice" class="form-label"></label>
+        <input asp-for="PurchasePrice" class="form-control" step="0.01" />
+        <span asp-validation-for="PurchasePrice" class="text-danger small"></span>
+    </div>
+    <div class="col-sm-6">
+        <label asp-for="DailyRentalCost" class="form-label"></label>
+        <input asp-for="DailyRentalCost" class="form-control" step="0.01" />
+        <span asp-validation-for="DailyRentalCost" class="text-danger small"></span>
+    </div>
+</div>

@@ -1,0 +1,35 @@
+@model Equipment
+@{
+    ViewData["Title"] = "Delete equipment";
+    var canDelete = (bool)(ViewBag.CanDelete ?? false);
+}
+
+<h1 class="h3 mb-4">Delete equipment</h1>
+
+<div class="card form-narrow">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-5">Inventory number</dt><dd class="col-sm-7"><code>@Model.InventoryNumber</code></dd>
+            <dt class="col-sm-5">Name</dt><dd class="col-sm-7">@Model.Name</dd>
+            <dt class="col-sm-5">Category</dt><dd class="col-sm-7">@Model.Category?.Name</dd>
+            <dt class="col-sm-5">Units</dt><dd class="col-sm-7">@Model.Units.Count</dd>
+        </dl>
+    </div>
+</div>
+
+@if (canDelete)
+{
+    <p class="mt-4">Are you sure? This deletes the equipment entry <strong>and all @Model.Units.Count of its units</strong>. It cannot be undone.</p>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-link">Cancel</a>
+    </form>
+}
+else
+{
+    <div class="alert alert-warning mt-4 form-narrow">
+        This equipment has rental history and cannot be deleted. Mark its units as out of service instead.
+    </div>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Back</a>
+}

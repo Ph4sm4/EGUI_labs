@@ -1,0 +1,128 @@
+@model EquipmentDetailsViewModel
+@{
+    var e = Model.Equipment;
+    ViewData["Title"] = e.Name;
+    var isAdmin = User.IsInRole(OutdoorRental.Data.DbSeeder.AdminRole);
+    var units = e.Units.OrderBy(u => u.SerialNumber).ToList();
+}
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h1 class="h3 mb-1">@e.Name</h1>
+        <span class="badge bg-primary">@e.Category?.Name</span>
+        <code class="ms-2">@e.InventoryNumber</code>
+    </div>
+    @if (isAdmin)
+    {
+        <div class="text-nowrap">
+            <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-outline-primary">Edit</a>
+            <a asp-action="Delete" asp-route-id="@e.Id" class="btn btn-outline-danger">Delete</a>
+        </div>
+    }
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        @if (!string.IsNullOrEmpty(e.Description))
+        {
+            <p style="white-space: pre-line">@e.Description</p>
+        }
+        <dl class="row">
+            <dt class="col-sm-5">Daily rental cost</dt>
+            <dd class="col-sm-7">@e.DailyRentalCost.ToString("N2") PLN</dd>
+            <dt class="col-sm-5">Year of purchase</dt>
+            <dd class="col-sm-7">@e.PurchaseYear</dd>
+            @if (isAdmin)
+            {
+                <dt class="col-sm-5">Purchase price</dt>
+                <dd class="col-sm-7">@e.PurchasePrice.ToString("N2") PLN</dd>
+            }
+            <dt class="col-sm-5">Units (available)</dt>
+            <dd class="col-sm-7">@units.Count (@units.Count(u => u.Status == UnitStatus.Available))</dd>
+        </dl>
+    </div>
+
+    @if (isAdmin)
+    {
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-header">Add units to this batch</div>
+                <div class="card-body">
+                    @if (!Model.Locations.Any())
+                    {
+                        <p class="mb-0 text-muted">Create a <a asp-controller="Locations" asp-action="Create">rental point</a> first.</p>
+                    }
+                    else
+                    {
+                        <form asp-action="AddUnits" method="post">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                            <input type="hidden" asp-for="AddUnits.EquipmentId" />
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <label asp-for="AddUnits.Count" class="form-label"></label>
+                                    <input asp-for="AddUnits.Count" class="form-control" min="1" max="200" />
+                                </div>
+                                <div class="col-8">
+                                    <label asp-for="AddUnits.LocationId" class="form-label"></label>
+                                    <select asp-for="AddUnits.LocationId" asp-items="Model.Locations" class="form-select">
+                                        <option value="">-- choose --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <span asp-validation-for="AddUnits.Count" class="text-danger small d-block"></span>
+                            <span asp-validation-for="AddUnits.LocationId" class="text-danger small d-block"></span>
+                            <button type="submit" class="btn btn-primary btn-sm mt-3">Add units</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<h2 class="h5 mt-4">Units</h2>
+@if (units.Count == 0)
+{
+    <div class="alert alert-info">This batch has no units yet.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Serial number</th>
+                    <th>Rental point</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in units)
+                {
+                    // green = free, blue = out on rent, grey = broken
+                    var badge = u.Status switch
+                    {
+                        UnitStatus.Available => "bg-success",
+                        UnitStatus.Rented => "bg-primary",
+                        _ => "bg-secondary"
+                    };
+                    <tr>
+                        <td><code>@u.SerialNumber</code></td>
+                        <td><a asp-controller="Locations" asp-action="Details" asp-route-id="@u.LocationId">@u.Location?.Name</a></td>
+                        <td><span class="badge @badge">@(u.Status == UnitStatus.OutOfService ? "Out of service" : u.Status.ToString())</span></td>
+                        <td class="text-end text-nowrap">
+                            @if (isAdmin && u.Status != UnitStatus.Rented)
+                            {
+                                <a asp-action="EditUnit" asp-route-id="@u.Id" class="btn btn-sm btn-outline-primary">Move / edit</a>
+                                <a asp-action="DeleteUnit" asp-route-id="@u.Id" class="btn btn-sm btn-outline-danger">Remove</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<a asp-action="Index" class="btn btn-link px-0">&larr; All equipment</a>

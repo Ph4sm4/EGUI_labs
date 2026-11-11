@@ -1,0 +1,54 @@
+@model RentalLocation
+@{
+    ViewData["Title"] = Model.Name;
+    var isAdmin = User.IsInRole(OutdoorRental.Data.DbSeeder.AdminRole);
+    var groups = Model.Units
+        .GroupBy(u => u.Equipment!)
+        .OrderBy(g => g.Key.Name)
+        .ToList();
+}
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h1 class="h3 mb-1">@Model.Name</h1>
+        <p class="text-muted mb-0">@Model.Address, @Model.City @(Model.Phone is null ? "" : $"· {Model.Phone}")</p>
+    </div>
+    @if (isAdmin)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Edit</a>
+    }
+</div>
+
+<h2 class="h5 mt-4">Equipment at this rental point</h2>
+@if (groups.Count == 0)
+{
+    <div class="alert alert-info">No equipment is currently kept here.</div>
+}
+else
+{
+    <table class="table">
+        <thead class="table-light">
+            <tr>
+                <th>Equipment</th>
+                <th>Category</th>
+                <th class="text-end">Daily cost</th>
+                <th class="text-end">Available</th>
+                <th class="text-end">Total units</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var g in groups)
+            {
+                <tr>
+                    <td><a asp-controller="Equipment" asp-action="Details" asp-route-id="@g.Key.Id">@g.Key.Name</a></td>
+                    <td>@g.Key.Category?.Name</td>
+                    <td class="text-end">@g.Key.DailyRentalCost.ToString("N2") PLN</td>
+                    <td class="text-end">@g.Count(u => u.Status == UnitStatus.Available)</td>
+                    <td class="text-end">@g.Count()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-action="Index" class="btn btn-link px-0">&larr; All rental points</a>

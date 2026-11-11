@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "OutdoorRental",
+      "runtimeExecutable": "C:\\Program Files\\dotnet\\dotnet.exe",
+      "runtimeArgs": ["run", "--project", "OutdoorRental", "--launch-profile", "http", "--urls", "http://localhost:3000"],
+      "port": 3000
+    }
+  ]
+}

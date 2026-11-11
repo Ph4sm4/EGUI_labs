@@ -1,0 +1,36 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "My account";
+    var balance = (decimal)(ViewBag.Balance ?? 0m);
+}
+
+<h1 class="h3 mb-4">My account</h1>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header">Personal details</div>
+            <div class="card-body">
+                <form asp-action="Profile" method="post">
+                    <partial name="_ProfileFields" model="Model" />
+                    <button type="submit" class="btn btn-primary">Save details</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Account balance</div>
+            <div class="card-body">
+                <p class="display-6 mb-1">@balance.ToString("N2") PLN</p>
+                <p class="text-muted small mb-0">Deposit money at any rental point's cash desk. Rentals are paid from this balance.</p>
+            </div>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-header">Security</div>
+            <div class="card-body">
+                <a asp-action="ChangePassword" class="btn btn-outline-secondary">Change password</a>
+            </div>
+        </div>
+    </div>
+</div>

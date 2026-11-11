@@ -1,0 +1,33 @@
+@model EditUnitViewModel
+@{
+    ViewData["Title"] = "Edit unit";
+    // "rented" only happens through an actual rental, so hide it here
+    var statuses = Html.GetEnumSelectList<UnitStatus>()
+        .Where(s => s.Value != ((int)UnitStatus.Rented).ToString());
+}
+
+<h1 class="h3 mb-1">Edit unit</h1>
+<p class="text-muted mb-4">@Model.EquipmentName</p>
+
+<form asp-action="EditUnit" method="post" class="form-narrow">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3">
+        <label asp-for="SerialNumber" class="form-label"></label>
+        <input asp-for="SerialNumber" class="form-control" />
+        <span asp-validation-for="SerialNumber" class="text-danger small"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="LocationId" class="form-label"></label>
+        <select asp-for="LocationId" asp-items="Model.Locations" class="form-select"></select>
+        <span asp-validation-for="LocationId" class="text-danger small"></span>
+        <div class="form-text">Choose another rental point to move the unit there.</div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Status" class="form-label"></label>
+        <select asp-for="Status" asp-items="statuses" class="form-select"></select>
+        <span asp-validation-for="Status" class="text-danger small"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Details" asp-route-id="@Model.EquipmentId" class="btn btn-link">Cancel</a>
+</form>

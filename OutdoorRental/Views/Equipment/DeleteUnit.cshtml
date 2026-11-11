@@ -1,0 +1,34 @@
+@model EquipmentUnit
+@{
+    ViewData["Title"] = "Remove unit";
+    var canDelete = (bool)(ViewBag.CanDelete ?? false);
+}
+
+<h1 class="h3 mb-4">Remove unit</h1>
+
+<div class="card form-narrow">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-5">Equipment</dt><dd class="col-sm-7">@Model.Equipment?.Name</dd>
+            <dt class="col-sm-5">Serial number</dt><dd class="col-sm-7"><code>@Model.SerialNumber</code></dd>
+            <dt class="col-sm-5">Rental point</dt><dd class="col-sm-7">@Model.Location?.Name</dd>
+        </dl>
+    </div>
+</div>
+
+@if (canDelete)
+{
+    <p class="mt-4">Remove this unit from the batch? This cannot be undone.</p>
+    <form asp-action="DeleteUnit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Remove</button>
+        <a asp-action="Details" asp-route-id="@Model.EquipmentId" class="btn btn-link">Cancel</a>
+    </form>
+}
+else
+{
+    <div class="alert alert-warning mt-4 form-narrow">
+        This unit is rented or has rental history, so it cannot be removed. Mark it out of service instead.
+    </div>
+    <a asp-action="Details" asp-route-id="@Model.EquipmentId" class="btn btn-outline-secondary">Back</a>
+}

@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Outdoorsy</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+@{
+    var isAdmin = User.IsInRole(OutdoorRental.Data.DbSeeder.AdminRole);
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var auth = signedIn ? null : AuthModalsViewModel.Build(Context, TempData); // only needed when logged out
+    // pages with their own open modal flag it so the body stops scrolling
+    var modalOpen = auth?.IsServerOpen == true || ViewData["ModalOpen"] is true;
+}
+<body class="d-flex flex-column min-vh-100 @(modalOpen ? "modal-open" : "")">
+
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+            <div class="container">
+                <a class="navbar-brand fw-semibold" asp-controller="Home" asp-action="Index">Outdoorsy</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Locations" asp-action="Index">Rental points</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Equipment" asp-action="Index">Equipment</a></li>
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Categories" asp-action="Index">Categories</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Users" asp-action="Index">Users</a></li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav align-items-lg-center">
+                        @if (signedIn)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Profile">
+                                    @User.Identity!.Name
+                                    @if (isAdmin)
+                                    {
+                                        <span class="badge bg-warning text-dark ms-1">Admin</span>
+                                    }
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-link nav-link">Log out</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            var authSep = auth!.CurrentUrl.Contains('?') ? "&" : "?";
+                            if (auth.IsServerOpen)
+                            {
+                                <li class="nav-item"><a class="nav-link" href="@(auth.CurrentUrl + authSep)auth=login">Log in</a></li>
+                                <li class="nav-item"><a class="btn btn-light btn-sm ms-lg-2" href="@(auth.CurrentUrl + authSep)auth=register">Register</a></li>
+                            }
+                            else
+                            {
+                                <li class="nav-item"><a class="nav-link" href="@(auth.CurrentUrl + authSep)auth=login" data-bs-toggle="modal" data-bs-target="#loginModal">Log in</a></li>
+                                <li class="nav-item"><a class="btn btn-light btn-sm ms-lg-2" href="@(auth.CurrentUrl + authSep)auth=register" data-bs-toggle="modal" data-bs-target="#registerModal">Register</a></li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" class="container flex-grow-1 pb-4">
+        @if (TempData["Success"] is string success)
+        {
+            <div class="alert alert-primary">@success</div>
+        }
+        @if (TempData["Error"] is string error)
+        {
+            <div class="alert alert-danger">@error</div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="border-top py-3 text-muted small">
+        <div class="container">&copy; 2026 Outdoorsy</div>
+    </footer>
+
+    @if (auth != null)
+    {
+        <partial name="_AuthModals" model="auth" />
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

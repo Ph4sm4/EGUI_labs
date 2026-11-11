@@ -1,0 +1,72 @@
+html {
+  font-size: 15px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.navbar .btn-link.nav-link {
+  border: 0;
+}
+
+/* modals the server renders already open get the same slide-in as bootstrap ones */
+.modal.server-open .modal-dialog {
+  animation: modal-slide-in 0.3s ease-out;
+}
+
+.modal-backdrop.server-open {
+  animation: backdrop-fade-in 0.15s linear;
+}
+
+@keyframes modal-slide-in {
+  from { transform: translateY(-50px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes backdrop-fade-in {
+  from { opacity: 0; }
+  to { opacity: 0.5; }
+}
+
+/* home page tiles, nice and plain */
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  height: 100%;
+  padding: 1rem 1.1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #212529;
+  text-decoration: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.tile:hover,
+.tile:focus {
+  color: #212529;
+  border-color: #0d6efd;
+  box-shadow: 0 0.25rem 0.75rem rgba(13, 110, 253, 0.12);
+  transform: translateY(-2px);
+}
+
+.tile-title {
+  font-weight: 600;
+}
+
+.tile-meta {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.form-narrow {
+  max-width: 560px;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+}
