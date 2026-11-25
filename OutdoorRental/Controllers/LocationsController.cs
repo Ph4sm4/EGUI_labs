@@ -69,7 +69,7 @@ public class LocationsController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,City,Address,Phone")] RentalLocation input)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,City,Address,Phone,Version")] RentalLocation input)
     {
         if (id != input.Id) return NotFound();
 
@@ -84,7 +84,17 @@ public class LocationsController : Controller
         location.City = input.City;
         location.Address = input.Address;
         location.Phone = input.Phone;
-        await _db.SaveChangesAsync();
+        // compare against the version the form was loaded with
+        _db.Entry(location).Property(l => l.Version).OriginalValue = input.Version;
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            TempData["Error"] = "This rental point was changed by another administrator while you were editing. The current values are shown below, apply your changes again.";
+            return RedirectToAction(nameof(Edit), new { id });
+        }
 
         TempData["Success"] = $"Rental point \"{location.Name}\" has been updated.";
         return RedirectToAction(nameof(Index));

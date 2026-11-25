@@ -28,6 +28,10 @@
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item"><a class="nav-link" asp-controller="Locations" asp-action="Index">Rental points</a></li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Equipment" asp-action="Index">Equipment</a></li>
+                        @if (signedIn)
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Rentals" asp-action="Index">@(isAdmin ? "Rentals" : "My rentals")</a></li>
+                        }
                         @if (isAdmin)
                         {
                             <li class="nav-item"><a class="nav-link" asp-controller="Categories" asp-action="Index">Categories</a></li>

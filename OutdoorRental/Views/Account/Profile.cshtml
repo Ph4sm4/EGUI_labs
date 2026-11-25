@@ -23,7 +23,8 @@
             <div class="card-header">Account balance</div>
             <div class="card-body">
                 <p class="display-6 mb-1">@balance.ToString("N2") PLN</p>
-                <p class="text-muted small mb-0">Deposit money at any rental point's cash desk. Rentals are paid from this balance.</p>
+                <p class="text-muted small">Deposit money at any rental point's cash desk. Rentals are paid from this balance.</p>
+                <a asp-controller="Rentals" asp-action="Index" class="btn btn-sm btn-outline-primary">My rentals &amp; history</a>
             </div>
         </div>
         <div class="card shadow-sm">

@@ -1,0 +1,22 @@
+@model DepositViewModel
+@{
+    ViewData["Title"] = "Cash desk";
+}
+
+<h1 class="h3 mb-1">Cash desk – @Model.FullName</h1>
+<p class="text-muted mb-4">@Model.Email · current balance <strong>@Model.Balance.ToString("N2") PLN</strong></p>
+
+<form asp-action="Deposit" method="post" class="form-narrow mb-4">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    <input type="hidden" asp-for="UserId" />
+    <div class="mb-3">
+        <label asp-for="Amount" class="form-label"></label>
+        <input asp-for="Amount" class="form-control" step="0.01" min="0.01" />
+        <span asp-validation-for="Amount" class="text-danger small"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Deposit</button>
+    <a asp-action="Index" class="btn btn-link">Back to list</a>
+</form>
+
+<h2 class="h5">Recent transactions</h2>
+<partial name="_Transactions" model="Model.Transactions" />

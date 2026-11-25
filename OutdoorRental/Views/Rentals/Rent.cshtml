@@ -1,0 +1,24 @@
+@model RentViewModel
+@{
+    ViewData["Title"] = "Rent " + Model.EquipmentName;
+}
+
+<h1 class="h3 mb-1">Rent @Model.EquipmentName</h1>
+<p class="text-muted mb-4">
+    @Model.DailyRate.ToString("N2") PLN per started day, charged from your balance when you return it.
+    Your balance: <strong>@Model.Balance.ToString("N2") PLN</strong>.
+</p>
+
+<form asp-action="Rent" method="post" class="form-narrow">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    <input type="hidden" asp-for="EquipmentId" />
+    <div class="mb-3">
+        <label asp-for="LocationId" class="form-label"></label>
+        <select asp-for="LocationId" asp-items="Model.Locations" class="form-select">
+            <option value="">-- choose --</option>
+        </select>
+        <span asp-validation-for="LocationId" class="text-danger small"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Rent</button>
+    <a asp-controller="Equipment" asp-action="Details" asp-route-id="@Model.EquipmentId" class="btn btn-link">Cancel</a>
+</form>

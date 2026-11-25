@@ -13,10 +13,12 @@ namespace OutdoorRental.Controllers;
 public class UsersController : Controller
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ApplicationDbContext _db;
 
-    public UsersController(UserManager<ApplicationUser> userManager)
+    public UsersController(UserManager<ApplicationUser> userManager, ApplicationDbContext db)
     {
         _userManager = userManager;
+        _db = db;
     }
 
     public async Task<IActionResult> Index()
@@ -79,5 +81,67 @@ public class UsersController : Controller
 
         TempData["Success"] = $"Details of {user.FullName} have been saved.";
         return RedirectToAction(nameof(Index));
+    }
+
+    // cash desk - admin takes the money and tops up the balance
+
+    public async Task<IActionResult> Deposit(string? id)
+    {
+        if (id == null) return NotFound();
+        var model = new DepositViewModel { UserId = id };
+        return await FillDepositAsync(model) ? View(model) : NotFound();
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Deposit(DepositViewModel model)
+    {
+        var user = await _db.Users.FindAsync(model.UserId);
+        if (user == null) return NotFound();
+
+        if (!ModelState.IsValid)
+        {
+            await FillDepositAsync(model);
+            return View(model);
+        }
+
+        var amount = Math.Round(model.Amount!.Value, 2);
+        user.Balance += amount;
+        _db.AccountTransactions.Add(new AccountTransaction
+        {
+            UserId = user.Id,
+            Type = TransactionType.Deposit,
+            Amount = amount,
+            CreatedAt = DateTime.UtcNow,
+            Description = $"Cash deposit by {User.Identity!.Name}"
+        });
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // another admin deposit or a rental return touched this balance at the same moment
+            TempData["Error"] = "The balance was changed by someone else at the same time. Nothing was deposited - please try again.";
+            return RedirectToAction(nameof(Deposit), new { id = user.Id });
+        }
+
+        TempData["Success"] = $"Deposited {amount:N2} PLN for {user.FullName}. New balance: {user.Balance:N2} PLN.";
+        return RedirectToAction(nameof(Deposit), new { id = user.Id });
+    }
+
+    private async Task<bool> FillDepositAsync(DepositViewModel model)
+    {
+        var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == model.UserId);
+        if (user == null) return false;
+        model.FullName = user.FullName;
+        model.Email = user.Email;
+        model.Balance = user.Balance;
+        model.Transactions = await _db.AccountTransactions.AsNoTracking()
+            .Where(t => t.UserId == user.Id)
+            .OrderByDescending(t => t.CreatedAt)
+            .Take(20)
+            .ToListAsync();
+        return true;
     }
 }

@@ -3,9 +3,11 @@ using System.ComponentModel.DataAnnotations;
 namespace OutdoorRental.Models.Entities;
 
 // one rental point
-public class RentalLocation
+public class RentalLocation : IVersioned
 {
     public int Id { get; set; }
+
+    public Guid Version { get; set; }
 
     [Required, StringLength(100)]
     public string Name { get; set; } = string.Empty;

@@ -12,6 +12,7 @@
 <form asp-action="EditUnit" method="post" class="form-narrow">
     <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
     <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Version" />
     <div class="mb-3">
         <label asp-for="SerialNumber" class="form-label"></label>
         <input asp-for="SerialNumber" class="form-control" />

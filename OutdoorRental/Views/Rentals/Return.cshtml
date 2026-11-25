@@ -1,0 +1,33 @@
+@model ReturnViewModel
+@{
+    ViewData["Title"] = "Return equipment";
+    var r = Model.Rental!;
+}
+
+<h1 class="h3 mb-4">Return equipment</h1>
+
+<dl class="row" style="max-width: 560px">
+    <dt class="col-sm-5">Equipment</dt>
+    <dd class="col-sm-7">@r.EquipmentUnit?.Equipment?.Name <code>@r.EquipmentUnit?.SerialNumber</code></dd>
+    <dt class="col-sm-5">Customer</dt>
+    <dd class="col-sm-7">@r.User?.FullName</dd>
+    <dt class="col-sm-5">Picked up</dt>
+    <dd class="col-sm-7">@r.RentedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm"), @r.PickupLocation?.Name</dd>
+    <dt class="col-sm-5">To pay</dt>
+    <dd class="col-sm-7"><strong>@Model.Cost.ToString("N2") PLN</strong> (@Model.Days day(s) × @r.DailyRate.ToString("N2"))</dd>
+    <dt class="col-sm-5">Balance after</dt>
+    <dd class="col-sm-7">@((r.User!.Balance - Model.Cost).ToString("N2")) PLN</dd>
+</dl>
+
+<form asp-action="Return" method="post" class="form-narrow">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    <input type="hidden" asp-for="RentalId" />
+    <div class="mb-3">
+        <label asp-for="ReturnLocationId" class="form-label"></label>
+        <select asp-for="ReturnLocationId" asp-items="Model.Locations" class="form-select"></select>
+        <span asp-validation-for="ReturnLocationId" class="text-danger small"></span>
+        <div class="form-text">You can drop it off at any rental point.</div>
+    </div>
+    <button type="submit" class="btn btn-primary">Return and pay</button>
+    <a asp-action="Index" class="btn btn-link">Cancel</a>
+</form>

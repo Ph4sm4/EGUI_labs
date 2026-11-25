@@ -84,6 +84,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(r => r.ReturnLocationId).OnDelete(DeleteBehavior.Restrict);
         });
 
+        // version columns used for conflict detection (see IVersioned)
+        builder.Entity<RentalLocation>().Property(x => x.Version).IsConcurrencyToken();
+        builder.Entity<Equipment>().Property(x => x.Version).IsConcurrencyToken();
+        builder.Entity<EquipmentUnit>().Property(x => x.Version).IsConcurrencyToken();
+
         builder.Entity<AccountTransaction>(e =>
         {
             e.Property(t => t.Amount).HasPrecision(12, 2);
@@ -93,5 +98,31 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.HasOne(t => t.Rental).WithMany()
                 .HasForeignKey(t => t.RentalId).OnDelete(DeleteBehavior.SetNull);
         });
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        BumpVersions();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        BumpVersions();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    // every save gets a fresh version, the old one stays as OriginalValue and goes into the WHERE clause.
+    // users use identity's ConcurrencyStamp (already a concurrency token) - matters for the balance
+    private void BumpVersions()
+    {
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.State is not (EntityState.Added or EntityState.Modified)) continue;
+            if (entry.Entity is IVersioned v)
+                v.Version = Guid.NewGuid();
+            else if (entry.Entity is ApplicationUser u)
+                u.ConcurrencyStamp = Guid.NewGuid().ToString();
+        }
     }
 }

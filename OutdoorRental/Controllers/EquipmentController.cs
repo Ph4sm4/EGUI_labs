@@ -122,6 +122,7 @@ public class EquipmentController : Controller
         var model = new EquipmentFormViewModel
         {
             Id = e.Id,
+            Version = e.Version,
             InventoryNumber = e.InventoryNumber,
             Name = e.Name,
             Description = e.Description,
@@ -153,7 +154,16 @@ public class EquipmentController : Controller
         }
 
         CopyToEntity(model, equipment);
-        await _db.SaveChangesAsync();
+        _db.Entry(equipment).Property(x => x.Version).OriginalValue = model.Version;
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            TempData["Error"] = "This equipment was changed by another administrator while you were editing. The current values are shown below, apply your changes again.";
+            return RedirectToAction(nameof(Edit), new { id });
+        }
         TempData["Success"] = $"\"{equipment.Name}\" has been updated.";
         return RedirectToAction(nameof(Details), new { id });
     }
@@ -231,6 +241,7 @@ public class EquipmentController : Controller
         return View(new EditUnitViewModel
         {
             Id = unit.Id,
+            Version = unit.Version,
             EquipmentId = unit.EquipmentId,
             EquipmentName = unit.Equipment!.Name,
             SerialNumber = unit.SerialNumber,
@@ -272,7 +283,17 @@ public class EquipmentController : Controller
         unit.SerialNumber = model.SerialNumber;
         unit.LocationId = model.LocationId!.Value; // this is how we move gear between points
         unit.Status = model.Status;
-        await _db.SaveChangesAsync();
+        // covers another admin editing it and a customer renting it in the meantime
+        _db.Entry(unit).Property(u => u.Version).OriginalValue = model.Version;
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            TempData["Error"] = $"Unit {unit.SerialNumber} was changed by another administrator while you were editing (or it was just rented). The current values are shown below, apply your changes again.";
+            return RedirectToAction(nameof(EditUnit), new { id });
+        }
 
         TempData["Success"] = $"Unit {unit.SerialNumber} has been updated.";
         return RedirectToAction(nameof(Details), new { id = unit.EquipmentId });

@@ -1,0 +1,86 @@
+@model RentalsIndexViewModel
+@{
+    ViewData["Title"] = Model.IsAdminView ? "Rentals" : "My rentals";
+}
+
+<h1 class="h3 mb-4">@ViewData["Title"]</h1>
+
+@if (!Model.IsAdminView)
+{
+    <div class="card shadow-sm mb-4" style="max-width: 420px">
+        <div class="card-body">
+            <div class="text-muted small">Account balance</div>
+            <div class="display-6 @(Model.Balance < 0 ? "text-danger" : "")">@Model.Balance.ToString("N2") PLN</div>
+            <div class="text-muted small">Deposit money at any rental point's cash desk.</div>
+        </div>
+    </div>
+}
+
+@if (Model.Rentals.Count == 0)
+{
+    <div class="alert alert-info">
+        No rentals yet. Browse the <a asp-controller="Equipment" asp-action="Index">equipment</a> to rent something.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    @if (Model.IsAdminView)
+                    {
+                        <th>Customer</th>
+                    }
+                    <th>Equipment</th>
+                    <th>Picked up</th>
+                    <th>Returned</th>
+                    <th class="text-end">Rate / day</th>
+                    <th class="text-end">Cost</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.Rentals)
+                {
+                    <tr>
+                        @if (Model.IsAdminView)
+                        {
+                            <td>@r.User?.FullName<div class="small text-muted">@r.User?.Email</div></td>
+                        }
+                        <td>
+                            <a asp-controller="Equipment" asp-action="Details" asp-route-id="@r.EquipmentUnit?.EquipmentId">@r.EquipmentUnit?.Equipment?.Name</a>
+                            <div class="small"><code>@r.EquipmentUnit?.SerialNumber</code></div>
+                        </td>
+                        <td>@r.RentedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")<div class="small text-muted">@r.PickupLocation?.Name</div></td>
+                        <td>
+                            @if (r.ReturnedAt == null)
+                            {
+                                <span class="badge bg-primary">Out</span>
+                            }
+                            else
+                            {
+                                @r.ReturnedAt.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                <div class="small text-muted">@r.ReturnLocation?.Name</div>
+                            }
+                        </td>
+                        <td class="text-end">@r.DailyRate.ToString("N2")</td>
+                        <td class="text-end">@(r.TotalCost?.ToString("N2") ?? "–")</td>
+                        <td class="text-end">
+                            @if (r.ReturnedAt == null)
+                            {
+                                <a asp-action="Return" asp-route-id="@r.Id" class="btn btn-sm btn-outline-primary">Return</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (!Model.IsAdminView)
+{
+    <h2 class="h5 mt-4">Account history</h2>
+    <partial name="_Transactions" model="Model.Transactions" />
+}

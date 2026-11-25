@@ -35,7 +35,8 @@
                             <span class="badge bg-secondary">Customer</span>
                         }
                     </td>
-                    <td class="text-end">
+                    <td class="text-end text-nowrap">
+                        <a asp-action="Deposit" asp-route-id="@u.Id" class="btn btn-sm btn-outline-success">Deposit</a>
                         <a asp-action="Edit" asp-route-id="@u.Id" class="btn btn-sm btn-outline-primary">Edit details</a>
                     </td>
                 </tr>

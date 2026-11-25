@@ -349,6 +349,10 @@ namespace OutdoorRental.Data.Migrations
                     b.Property<int>("PurchaseYear")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
@@ -378,6 +382,10 @@ namespace OutdoorRental.Data.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -460,6 +468,10 @@ namespace OutdoorRental.Data.Migrations
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

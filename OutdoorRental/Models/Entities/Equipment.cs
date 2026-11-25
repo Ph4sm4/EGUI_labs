@@ -1,9 +1,11 @@
 namespace OutdoorRental.Models.Entities;
 
 // one entry in the equipment list = one batch, the real pieces are the units
-public class Equipment
+public class Equipment : IVersioned
 {
     public int Id { get; set; }
+
+    public Guid Version { get; set; }
 
     public string InventoryNumber { get; set; } = string.Empty;
 

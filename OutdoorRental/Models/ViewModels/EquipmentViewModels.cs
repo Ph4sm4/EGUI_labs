@@ -9,6 +9,9 @@ public class EquipmentFormViewModel
 {
     public int Id { get; set; }
 
+    // what the admin loaded, so we can tell if someone else saved in the meantime
+    public Guid Version { get; set; }
+
     [Required, StringLength(30), Display(Name = "Inventory number")]
     [RegularExpression(@"^[A-Za-z0-9\-/_.]+$", ErrorMessage = "Use letters, digits and - / _ . only.")]
     public string InventoryNumber { get; set; } = string.Empty;
@@ -84,6 +87,7 @@ public class AddUnitsViewModel
 public class EditUnitViewModel
 {
     public int Id { get; set; }
+    public Guid Version { get; set; }
     public int EquipmentId { get; set; }
     public string EquipmentName { get; set; } = string.Empty;
 

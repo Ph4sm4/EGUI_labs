@@ -12,13 +12,17 @@
         <span class="badge bg-primary">@e.Category?.Name</span>
         <code class="ms-2">@e.InventoryNumber</code>
     </div>
-    @if (isAdmin)
-    {
-        <div class="text-nowrap">
+    <div class="text-nowrap">
+        @if (User.Identity?.IsAuthenticated == true && units.Any(u => u.Status == UnitStatus.Available))
+        {
+            <a asp-controller="Rentals" asp-action="Rent" asp-route-id="@e.Id" class="btn btn-success">Rent</a>
+        }
+        @if (isAdmin)
+        {
             <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-outline-primary">Edit</a>
             <a asp-action="Delete" asp-route-id="@e.Id" class="btn btn-outline-danger">Delete</a>
-        </div>
-    }
+        }
+    </div>
 </div>
 
 <div class="row g-4">

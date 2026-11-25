@@ -11,9 +11,11 @@ public enum UnitStatus
 }
 
 // one actual piece of gear from a batch
-public class EquipmentUnit
+public class EquipmentUnit : IVersioned
 {
     public int Id { get; set; }
+
+    public Guid Version { get; set; }
 
     public int EquipmentId { get; set; }
     public Equipment? Equipment { get; set; }

@@ -33,6 +33,25 @@ EF tooling is a local tool: `dotnet tool restore`, then e.g.
 | Registration and login of standard users | `AccountController.Register` / `Login` |
 | Users edit their own first/last name and phone; admin edits anyone's | `AccountController.Profile`, `UsersController` |
 
+## Task 2 scope (implemented)
+
+| Requirement | Where |
+|---|---|
+| Admin as cashier: deposits money into a user's account | `UsersController.Deposit`, `Views/Users/Deposit` |
+| Renting (pick a rental point, the first free unit is handed out) | `RentalsController.Rent` |
+| Returning to any rental point (pickup point by default); the unit moves there | `RentalsController.Return` |
+| Rent paid from the balance | on return: started days × daily rate locked at pickup; at least one day's rate is needed on the balance to start |
+| My rentals + account history / all rentals for admin | `RentalsController.Index` |
+| Admin moves equipment between rental points | `EquipmentController.EditUnit` |
+| Conflict handling | optimistic concurrency, see below |
+
+**Conflict handling.** `ApplicationDbContext.SaveChanges` gives every modified `IVersioned` row a new `Version`
+and every modified user a new `ConcurrencyStamp` (Identity's built-in concurrency token). EF puts the old value in the
+`WHERE` clause, so a write based on stale data fails with `DbUpdateConcurrencyException`, which is reported to the user:
+- two admins editing the same rental point / equipment / unit: the edit forms carry the loaded `Version` in a hidden field;
+- two customers renting the last free unit, or an admin moving/disabling a unit while it is being rented;
+- a deposit and a rental charge hitting the same balance at once, or the user and an admin both returning the same rental.
+
 ## Database design
 
 ```
@@ -49,5 +68,5 @@ AccountTransactions             Id, UserId, Type (Deposit/RentalCharge), Amount,
 ```
 
 An `Equipment` row is one entry in the equipment list (a purchased batch). Its physical pieces are
-`EquipmentUnits`, each kept at a rental point. `Rentals` and `AccountTransactions` are already in the schema
-for the next task (cash-desk deposits, renting, returning to any rental point). They have no UI yet.
+`EquipmentUnits`, each kept at a rental point. `RentalLocations`, `Equipment` and `EquipmentUnits` also have a
+`Version` (GUID) concurrency column.
